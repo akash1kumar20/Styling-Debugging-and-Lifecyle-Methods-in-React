@@ -1,31 +1,39 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from 'react';
 
-import UserForm from "./Components/Form/UserForm";
-import UserData from "./Components/Form/UserData";
+import Login from './components/Login/Login';
+import Home from './components/Home/Home';
+import MainHeader from './components/MainHeader/MainHeader';
+
 function App() {
-  const [usersList, setUsersList] = useState([]);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
 
-  const addUserHandler = (uName, uAge, uCollege) => {
-    setUsersList((prevUsersList) => {
-      return [
-        ...prevUsersList,
-        {
-          name: uName,
-          age: uAge,
-          college: uCollege,
-          id: Math.random().toString(),
-        },
-      ];
-    });
+  useEffect(() => {
+    const storedUserLoggedInInformation = localStorage.getItem('isLoggedIn');
+
+    if (storedUserLoggedInInformation === '1') {
+      setIsLoggedIn(true);
+    }
+  }, []);
+
+  const loginHandler = (email, password) => {
+    // We should of course check email and password
+    // But it's just a dummy/ demo anyways
+    localStorage.setItem('isLoggedIn', '1');
+    setIsLoggedIn(true);
   };
-  // UserData doesn't have the access of data which we get from the UserForm component, if it  no access, it can show that data on the screen, App component is the closet component to UserData and UserForm component and have access for both the component, so with the the help of App, we make a connection b/w UserData and UserForm component.
+
+  const logoutHandler = () => {
+    localStorage.removeItem('isLoggedIn');
+    setIsLoggedIn(false);
+  };
 
   return (
     <React.Fragment>
-      <UserForm onAddUser={addUserHandler} />
-      {/* onAddUser is poniting to the addUserHandler function and we use onAddUser function in UserForm to store the data. */}
-      <UserData users={usersList} />
-      {/* users give us the data in the array from which can we use in the UserData component and usersList is forwading to the component */}
+      <MainHeader isAuthenticated={isLoggedIn} onLogout={logoutHandler} />
+      <main>
+        {!isLoggedIn && <Login onLogin={loginHandler} />}
+        {isLoggedIn && <Home onLogout={logoutHandler} />}
+      </main>
     </React.Fragment>
   );
 }
